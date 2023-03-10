@@ -1,7 +1,5 @@
-# for the connection
-import socket
-# for handle
 import threading
+import socket
 
 # localhost
 host = "127.0.0.1"
@@ -18,9 +16,6 @@ nicknames = []
 
 # braodcasting messages from the server to all the clients
 def broadcast(message):
-    # implement the filtering of the messages here
-    # implement the brand analytics and tracking here
-
     for client in clients:
         client.send(message)
 
