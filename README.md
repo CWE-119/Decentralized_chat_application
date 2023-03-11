@@ -7,3 +7,4 @@
 4. use a special command to make a block that can hold sensitive data and use of zkp 
 5. connect to IPFS and try to build to build a frontend with the streamlit 
 6. upload and fetch image from ipfs 
+7. use ECC somewhere in the program
