@@ -3,7 +3,7 @@ import threading
 
 # set the host and port of this node
 HOST = '127.0.0.1'
-PORT = 6969
+PORT = 6868
 
 # set the IP address and port of a known node in the network
 KNOWN_HOST = '127.0.0.1'
@@ -18,6 +18,8 @@ server_socket.listen()
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client_socket.connect((KNOWN_HOST, KNOWN_PORT))
 
+# a list of connected peer sockets
+peer_sockets = []
 
 # function to handle incoming connections from other nodes
 def handle_peer(peer_socket, peer_address):
@@ -26,9 +28,13 @@ def handle_peer(peer_socket, peer_address):
         if not message:
             # the connection was closed by the peer
             print(f'{peer_address} disconnected')
+            peer_sockets.remove(peer_socket)
             break
         print(f'Received message from {peer_address}: {message.decode()}')
-
+        # broadcast the message to all connected peers
+        for socket in peer_sockets:
+            if socket != peer_socket:
+                socket.send(message)
 
 # function to connect to a new peer
 def connect_to_peer(peer_host, peer_port):
@@ -37,15 +43,14 @@ def connect_to_peer(peer_host, peer_port):
         peer_socket.connect((peer_host, peer_port))
         threading.Thread(target=handle_peer, args=(peer_socket, (peer_host, peer_port))).start()
         print(f'Connected to peer at {peer_host}:{peer_port}')
+        peer_sockets.append(peer_socket)
         return True
     except:
         print(f'Failed to connect to peer at {peer_host}:{peer_port}')
         return False
 
-
 # join the network by connecting to the known node
 connect_to_peer(KNOWN_HOST, KNOWN_PORT)
-
 
 # start listening for incoming connections
 def accept_connections():
@@ -53,7 +58,7 @@ def accept_connections():
         peer_socket, peer_address = server_socket.accept()
         threading.Thread(target=handle_peer, args=(peer_socket, peer_address)).start()
         print(f'Accepted connection from {peer_address}')
-
+        peer_sockets.append(peer_socket)
 
 threading.Thread(target=accept_connections).start()
 
@@ -67,5 +72,9 @@ while True:
         if ':' in message:
             peer_host, peer_port = message.split(':')
             connect_to_peer(peer_host, int(peer_port))
+        else:
+            # broadcast the message to all connected peers
+            for socket in peer_sockets:
+                socket.send(message.encode())
     except KeyboardInterrupt:
         pass

@@ -3,7 +3,7 @@ import threading
 
 # set the host and port of this node
 HOST = '127.0.0.1'
-PORT = 6969
+PORT = 6868
 
 # set the IP address and port of a known node in the network
 KNOWN_HOST = '127.0.0.1'
