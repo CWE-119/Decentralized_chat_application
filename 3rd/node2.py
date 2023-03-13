@@ -47,7 +47,11 @@ class Server:
 class Client:
     def sendMsg(self, sock):
         while True:
-            sock.send(bytes(input("_>"), 'utf-8'))
+            try:
+                sock.send(bytes(input("_>"), 'utf-8'))
+            except ConnectionResetError:
+                print("An existing connection was forcibly closed by the remote host")
+                pass
 
     def __init__(self, address):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
